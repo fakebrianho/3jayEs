@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>01.01 - WebGLRenderer - Skeleton</title>
+    <script src="build/three.js"></script>
+    <script src="js/renderers/CanvasRenderer.js"></script>
+    <script src="js/renderers/Projector.js"></script>
+    <script src="js/libs/dat.gui.min.js"></script>
+    <style>
+      body {
+      margin: 0;
+      overflow: hidden;
+      }
+    </style>
+    <link rel="shortcut icon" href="">
+  </head>
+  <body>
+    <script>
+        //global variables
+        var renderer, scene, camera;
+        var cube;
+        init();
+        function init(){
+            //create a scene to store stuff etc
+            scene = new THREE.Scene();
+
+            //create the camera to look at stuff
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            //Let's reposition our camera to point at the center 
+            camera.position.x = 15;
+            camera.position.y = 13;
+            camera.position.z = 13;
+            camera.lookAt(scene.position);
+            
+            control = new function() {
+            
+                this.rotationSpeed = 0.005;
+                this.scale = 1;
+            };
+            addControls(control);
+
+
+            //Let's create a renderer and change the background color and size
+            renderer = new THREE.WebGLRenderer();
+            renderer.setClearColor(0x000000, 1.0);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            //let's add some geometries as lell! 
+            var cubeGeometry = new THREE.BoxGeometry(10 * Math.random(), 10 * Math.random(), 10 * Math.random());
+
+            var cubeMaterial = new THREE.MeshNormalMaterial();
+
+            cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+
+            scene.add(cube);
+            document.body.appendChild(renderer.domElement);
+            render(); 
+        }
+        
+        function addControls(controlObject){
+            var gui = new dat.GUI();
+            gui.add(controlObject, 'rotationSpeed', -0.1, 0.1);
+            gui.add(controlObject, 'scale', 0.01, 2);
+        }
+            
+        function render(){
+            renderer.render(scene, camera);
+         //   scene.getObjectByName('cube').rotation.x += 0.05;
+            cube.scale.set(control.scale, control.scale, control.scale);
+            cube.rotation.x += control.rotationSpeed;
+            requestAnimationFrame(render);
+
+        }
+
+
+    </script>
+
+  </body>
+</html>
+

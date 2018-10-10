@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detect WebGL Support</title>
+    <title></title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="shortcutIcon" href="">
+</head>
+<body>
+
+<!-- Lightbox to show when WebGL is supported or not -->
+<div id="light" class="white_content">
+    <div class="big-message" id="message">
+        <!--<div id="message"></div>-->
+    </div>
+    <a href="javascript:void(0)" onclick="hideLightbox()">Close</a>
+</div>
+<div id="fade" class="black_overlay"></div>
+
+<script>
+
+    var hasGl = detectWebGL();
+    if (hasGl) {
+        showLightbox("WebGL is supported");
+    } else {
+        showLightbox("WebGL is not-supported");
+    }
+
+    function showLightbox(message) {
+        var lightBox = document.getElementById('light');
+        lightBox.style.display = 'block';
+
+        var fadeBox = document.getElementById('fade');
+        fadeBox.style.display = 'block'
+
+        var msg = document.getElementById('message');
+        msg.textContent = message;
+    }
+
+    function hideLightbox() {
+        var lightBox = document.getElementById('light');
+        lightBox.style.display = 'none';
+
+        var fadeBox = document.getElementById('fade');
+        fadeBox.style.display = 'none'
+    }
+
+
+    // loosely based on the http://get.webgl.org
+    function detectWebGL() {
+
+        // first create a canvas element
+        var testCanvas = document.createElement("canvas");
+        // and from that canvas get the webgl context
+        var gl = null;
+
+        // if exceptions are thrown, indicates webgl is null
+        try {
+            gl = testCanvas.getContext("webgl");
+
+        } catch (x) {
+            gl = null;
+        }
+        // if webgl is all good return true;
+        if (gl) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+</script>
+</body>
+</html>
+
