@@ -75,6 +75,33 @@
                 keyboard[event.keyCode] = false;
             }
             
+       function onLoadCallback(loaded) {
+            if(loaded.length){
+                console.log("Loaded", loaded.length);
+            }else{
+                console.log('Loaded', loaded); 
+            } 
+       }
+
+        function loadModel(modelURL){
+            var jsonLoader = new THREE.JSONLoader();
+            jsonLoader.load(modelURL, onLoadCallBack, null);
+        }
+
+        function loadTexture(texture){
+            var texture = THREE.ImageUtils.loadTexture(textureURL, null, onLoadCallBack);
+        }
+
+        function onProgressCallBack(progress){
+            console.log("Progress", progress);
+
+        
+        }
+        
+        function onErrorCallBack(error){
+            console.log("Error", error); 
+        }
+
         function render(){
               // Keyboard movement inputs
                 if(keyboard[87]){ // W key
@@ -92,10 +119,10 @@
 
                 // Keyboard turn inputs
 //                if(keyboard[37]){ // left arrow key
- //j               }
- //               if(keyboard[39]){ // right arrow key
-  //                  camera.rotation.y += player.turnSpeed;
-   //j             }
+ //               }
+  //              if(keyboard[39]){ // right arrow key
+   //j                 camera.rotation.y += player.turnSpeed;
+    //            }
             renderer.render(scene, camera);
          //   scene.getObjectByName('cube').rotation.x += 0.05;
             cube.scale.set(control.scale, control.scale, control.scale);
