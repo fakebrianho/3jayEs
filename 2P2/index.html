@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>01.14 - Drop file</title>
+    <script src="build/three.js"></script>
+    <script src="js/libs/dat.gui.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+  <link rel="shortcut icon" href="#">
+</head>
+<script>
+    // global variables
+    var renderer;
+    var scene;
+    var camera;
+    var control;
+    function init() {
+    
+        scene = new THREE.Scene();
+        // create a camera, which defines where we're looking at.
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / (window.innerHeight / 1.5), 0.1, 1000);
+
+        // create a render, sets the background color and the size
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0x000000, 1.0);
+        renderer.setSize(window.innerWidth, (window.innerHeight / 1.5));
+
+        // position and point the camera to the center of the scene
+
+        // create a simple sphere
+        var sphere = new THREE.SphereGeometry(6.5, 20, 20);
+        var sphereMaterial = new THREE.MeshLambertMaterial({
+            color: 0x5555ff
+        });
+        var sphereMesh = new THREE.Mesh(sphere, sphereMaterial);
+        sphereMesh.receiveShadow = true;
+        sphereMesh.position.set(0, 1, 0);
+        scene.add(sphereMesh);
+
+        //add an object to pivot around 
+        pivotPoint = new THREE.Object3D();
+        sphereMesh.add(pivotPoint);
+
+        //create box
+        var cubeGeometry = new THREE.BoxGeometry(2, 4, 2);
+        var cubeMaterial = new THREE.MeshLambertMaterial();
+        cubeMaterial.color = new THREE.Color('red');
+        cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+        //position is relative to it's parent
+        cube.name = 'cube';
+        cube.castShadow = true;
+        //make the pivot point the parent now 
+        pivotPoint.add(cube);
+        
+        
+
+        // add the output of the renderer to the html element
+        document.body.appendChild(renderer.domElement);
+        control = new function () {
+            this.rotationSpeedX = 0.005;
+            this.rotationSpeedY = 0.005;
+            this.rotationSpeedZ = 0.005;
+            this.scale = 1;
+        }
+        
+        addControls(control);
+
+        // call the render function
+        render();
+    }
+
+    function addControls(controlObject) {
+
+        var gui = new dat.GUI();
+
+        gui.add(controlObject, 'rotationSpeedX', -0.2, 0.2);
+        gui.add(controlObject, 'rotationSpeedY', -0.2, 0.2);
+        gui.add(controlObject, 'rotationSpeedZ', -0.2, 0.2); 
+
+        gui.add(controlObject, 'scale', 0.01, 2);
+    }
+
+    function render() {
+
+        renderer.render(scene, camera);
+        pivotPoint.rotation.x += control.rotationSpeedX; 
+        pivotPoint.rotation.x += control.rotationSpeedY;
+        pivotPoint.rotation.x += control.rotationSpeedZ;
+        requestAnimationFrame(render);
+    }
+
+    // calls the init function when the window is done loading.
+    window.onload = init;
+</script>
+<body>
+<div id="holder"></div>
+</body>
+</html>
+
