@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bloom Flowers</title>
+    <link rel='stylesheet' href="css/style.css">
+    <script src="build/three.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script src="js/postprocessing/EffectComposer.js"></script>
+    <script src="js/shaders/CopyShader.js"></script>
+    <script src="js/postprocessing/RenderPass.js"></script>
+    <script src="js/postprocessing/ShaderPass.js"></script>
+    <script src="js/THREEx.KeyboardState.js"></script>
+    <script src="js/THREEx.FullScreen.js"></script>
+    <script src="js/THREEx.WindowResize.js"></script>
+    <script src="js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="js/postprocessing/UnrealBloomPass.js"></script>
+    <script type= "module" src="js/index.js"></script>
+    <script src="js/postprocessing/GlitchPass.js"></script>
+</head>
+<body>
+<script>
+    import { BloomEffect, EffectComposer, EffectPass, RenderPass } from "postprocessing";
+
+    /*-----Declaring Variables-----*/
+    let camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
+    let renderer = new THREE.WebGLRenderer();
+    let scene = new THREE.Scene();
+    let group = new THREE.Group();
+    const renderPass = new THREE.RenderPass(scene, camera);
+    const composer = new THREE.EffectComposer(renderer);
+    let controls;
+    let cubeMesh;
+    const params = {
+        exposure: 10,
+        bloomStrength: 1.5,
+        bloomThreshold: 0,
+        bloomRadius: 0
+    };
+    const composers = new EffectComposer(new WebGLRenderer());
+    // const camera = new PerspectiveCamera();
+    // const scene = new Scene();
+
+    const effectPass = new EffectPass(camera, new BloomEffect());
+    effectPass.renderToScreen = true;
+
+    composers.addPass(new RenderPass(scene, camera));
+    composers.addPass(effectPass);
+
+    const clock = new Clock();
+
+
+    // const clock = new THREE.Clock();
+    init();
+
+    function init() {
+        camera.position.set(0, 0, 10);
+        scene.background = new THREE.Color(0x8FBCD4);
+        scene.add(group);
+        controls = new THREE.OrbitControls(camera);
+        composer.setSize( window.innerWidth, window.innerHeight );
+
+
+        createGeometry();
+        createFlowers();
+        postProcess();
+        createLight();
+        update();
+        animate();
+
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        THREEx.WindowResize(renderer, camera);
+        THREEx.FullScreen.bindKey({charCode: 'm'.charCodeAt(0)});
+    }
+    function postProcess(){
+        // const effectPass = new EffectPass(camera, new BloomEffect());
+        // effectPass.renderToScreen = true;
+
+        // composer.addPass(new RenderPass(scene, camera));
+        // composer.addPass(effectPass);
+        // composer.addPass(renderPass);
+        // renderPass.renderToScreen = true;
+        // let bloomPass = new THREE.UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
+        // bloomPass.threshold = params.bloomThreshold;
+        // bloomPass.strength = params.bloomStrength;
+        // bloomPass.radius = params.bloomRadius;
+        // composer.addPass(bloomPass);
+        // bloomPass.renderToScreen = true;
+        // let glitchPass = new THREE.GlitchPass(0);
+        // composer.addPass(glitchPass);
+        // glitchPass.renderToScreen = true;
+    }
+
+    function createLight() {
+        const light = new THREE.DirectionalLight(0xffffff, 5.0);
+        light.position.set(10, 10, 10);
+        scene.add(light);
+        pointLight = new THREE.PointLight( 0xffffff, 1 );
+        camera.add( pointLight );
+    }
+
+    function createGlow(flower){
+        let _flower = flower;
+
+        // let _x = x;
+        // let _y = y;
+        // let _z = z;
+
+        let spriteMaterial = new THREE.SpriteMaterial(
+            {
+                map: new THREE.ImageUtils.loadTexture( 'images/glow.png' ),
+                color: 0xffb7c5, transparent: false, blending: THREE.AdditiveBlending
+            });
+        let sprite = new THREE.Sprite( spriteMaterial );
+        sprite.scale.set(1, 1, 1.0);
+        sprite.position.set(_flower.position.x - 0.0, _flower.position.y + 1.6, _flower.position.z - 0.25);
+        scene.add(sprite);
+        // _flower.add(sprite); // this centers the glow at the mesh
+    }
+
+    function createGeometry() {
+        const cube = new THREE.BoxGeometry(1, 1, 1);
+        const cubeMat = new THREE.MeshPhongMaterial({
+            color: 0x0000FF
+        });
+        cubeMesh = new THREE.Mesh(cube, cubeMat);
+        scene.add(cubeMesh);
+    }
+
+    function createFlowers() {
+        const x = 0;
+        const y = 0;
+
+        let petal1 = new THREE.Shape();
+        petal1.moveTo(x + 25, y + 25);
+        petal1.bezierCurveTo(x - 5, y + 55, x - 10, y + 55, x + 15, y + 105);
+        petal1.bezierCurveTo(x + 30, y + 60, x + 80, y + 55, x + 40, y + 5);
+
+        /*-----Petal 2 Params-----*/
+        let petal2 = new THREE.Shape();
+        petal2.moveTo(x - 40, y + 25);
+        petal2.bezierCurveTo(x - 70, y - 55, x + 60, y + 55, x + 15, y - 105);
+        petal2.bezierCurveTo(x - 70, y - 60, x - 40, y - 55, x - 30, y + 5);
+
+        /*-----Petal 3 Params-----*/
+        let petal3 = new THREE.Shape();
+        petal3.moveTo(x + 25, y + 25);
+        petal3.bezierCurveTo(x - 5, y + 55, x - 10, y + 55, x + 50, y + 105);
+        petal3.bezierCurveTo(x + 20, y + 60, x + 80, y + 55, x + 40, y + 5);
+
+        let extrudeSettings = {
+            amount: 1,
+            bevelEnabled: true,
+            bevelSegments: 2,
+            steps: 2,
+            bevelSize: 0.1,
+            bevelThickness: 1
+        };
+
+            // addShape(petal1, extrudeSettings, 0xffb7c5, Math.random() * 200 - 100, Math.random() * 120 - 60, Math.random() * 120 - 60, Math.random() * 60 - 30, Math.random() * 60 - 30, Math.random() * 60 - 30, 1);
+            addShape(petal1, extrudeSettings, 0xffb7c5, 2, 2, 2, 5, 5, 5, 1);
+        for (let i = 0; i < 3000; i += 10) {
+            addShape(petal1, extrudeSettings, 0xffb7c5, Math.random() * 200 - 100, Math.random() * 120 - 60, Math.random() * 120 - 60, Math.random() * 60 - 30, Math.random() * 60 - 30, Math.random() * 60 - 30, 1);
+            addShape(petal2, extrudeSettings, 0xffb7c5, Math.random() * 200 - 100, Math.random() * 120 - 60, Math.random() * 120 - 60, Math.random() * 60 - 30, Math.random() * 60 - 30, Math.random() * 60 - 30, 1);
+            addShape(petal3, extrudeSettings, 0xffb7c5, Math.random() * 200 - 100, Math.random() * 120 - 60, Math.random() * 120 - 60, Math.random() * 60 - 30, Math.random() * 60 - 30, Math.random() * 60 - 30, 1);
+        }
+
+    }
+
+    function addShape(shape, extrudeSettings, color, x, y, z, rx, ry, rz) {
+        /*-----Petal Geometry-----*/
+        let aPetal = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+        /*-----Petal Mesh-----*/
+        let mesh = new THREE.Mesh(aPetal, new THREE.MeshPhongMaterial({color: color}));
+        mesh.rotation.set(rx, ry, rz);
+        mesh.rotation.order = 'ZXY';
+        mesh.rotateY(Math.PI / 2);
+        mesh.position.set(x, y, z);
+        mesh.scale.set(0.015, 0.03, 0.03);
+        // createGlow(x, y, z);
+        group.add(mesh);
+        // createGlow(mesh);
+    }
+
+
+    function update() {
+        requestAnimationFrame(update);
+        cubeMesh.rotation.x += 0.01;
+        cubeMesh.rotation.y += 0.01;
+        cubeMesh.rotation.z += 0.01;
+        animate();
+
+    }
+
+    function animate() {
+        // composer.render();
+        composers.render(clock.getDelta());
+
+        // renderer.render(scene, camera);
+    }
+
+</script>
+
+</body>
+</html>
